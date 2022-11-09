@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Arimo&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arimo', sans-serif;
+}
+
+body {
+    background-color: black;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 80px;
+    color: orange;
+}
+
+#gameboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 400px;
+    gap: 6px;
+    margin: 180px auto;
+}
+
+#gameboard div {
+    background-color: transparent;
+    border: 2px solid orange;
+    text-align: center;
+    font-size: 100px;
+    color: whitesmoke;
+}
+
+#restartBtn {
+    width: 250px;
+    height: 60px;
+    position: relative;
+    left: 43%;
+    bottom: 100px;
+    font-size: 25px;
+    border-radius: 10px;
+    background-color: transparent;
+    border: 2px solid orange;
+    color: white;
+}
+
