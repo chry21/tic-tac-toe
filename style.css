@@ -22,8 +22,8 @@ h1 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    width: 400px;
-    height: 400px;
+    width: 410px;
+    height: 410px;
     gap: 6px;
     margin: 180px auto;
 }
