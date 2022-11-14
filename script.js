@@ -12,19 +12,18 @@ const Player = (sign) => {
 
 const displayControllerModule = (() => {
 
-    const fields = document.getElementsByClassName("not-active");
-    const message = document.getElementById("playerTurn");
+    const fields = document.querySelectorAll(".not-active");
+    const message= document.getElementById("message");
 
-    for(let i = 0; i < fields.length; i++) {
-        fields[i].addEventListener("click", (e) => {
+    fields.forEach(field =>
+        field.addEventListener("click", (e) => {
             if(!checkIfActive(e.target)) {
                 modifyFieldstatus(e.target)
                 gameControllerModule.playRound(e.target.dataset.index)
                 gameBoardModule.drawSign(e.target);
-                changeTurnMessage()
             }
         })
-    }
+    )   
 
     const checkIfActive = (target) => {
         return target.classList.contains("active")
@@ -35,24 +34,31 @@ const displayControllerModule = (() => {
         fields[numField].classList.add("active")
     }
 
-    const changeTurnMessage = () => {
-        const nextSign = gameBoardModule.getCurrentSign() === "X" ? "O" : "X";
-        message.textContent = `Player ${nextSign}' s turn`;
+    const setMessage = (text) => {
+        message.textContent = text;
     }
 
     const resetTurnMessage = () => {
-        message.textContent  = "Player X' s turn"
+        message.textContent = "Player X' s turn";
+    }
+
+    const resetFieldsClasses = () => {
+        fields.forEach(field => { 
+            field.classList.remove("active");
+            field.innerHTML = "";
+        })
     }
 
     const restartBtn = document.getElementById("restartBtn");
     restartBtn.addEventListener("click", () => {
-        gameBoardModule.reset();
         resetTurnMessage();
+        resetFieldsClasses();
+        gameBoardModule.resetGameBoard();
         gameControllerModule.resetRounds()
     })
 
     return {
-        fields,
+        setMessage,
     }
 })();
 
@@ -79,14 +85,15 @@ const gameBoardModule = (() => {
         field.innerHTML = _currentSign;
     }
 
-    const reset = () => {
-        _gameBoard = ["", "", "", "", "", "", "", "", ""];
-
-        const fields = displayControllerModule.fields
-        for(let i = 0; i < fields.length; i++) {
-            fields[i].innerHTML = "";
-            fields[i].classList.remove("active")
+    const checkWinner = () => {
+        if(_gameBoard[0] === "X" && _gameBoard[1] === "X" && _gameBoard[2] === "X") {
+            return true;
         }
+        return false;
+    }
+
+    const resetGameBoard = () => {
+        _gameBoard = ["", "", "", "", "", "", "", "", ""];
 
         _currentSign = "X";
     }
@@ -95,7 +102,8 @@ const gameBoardModule = (() => {
         updateGameboard,
         getCurrentSign,
         drawSign,
-        reset,
+        checkWinner,
+        resetGameBoard,
     }
 })()
 
@@ -106,18 +114,32 @@ const gameControllerModule = (() => {
     const playerO = Player("O");
 
     let round = 1;
-    let isGameOver = false;
 
     const playRound = (index) => {
-        console.log(round)
-        if(round % 2 !== 0) {
-            gameBoardModule.updateGameboard(index, playerX.getSign())
-            
+        if(!isGameOver()) {
+            if(round % 2 !== 0) {
+                gameBoardModule.updateGameboard(index, playerX.getSign())
+                displayControllerModule.setMessage("Player O' s turn");  
+            }
+            else {
+                gameBoardModule.updateGameboard(index, playerO.getSign())
+                displayControllerModule.setMessage("Player X' s turn");
+            }
+            ++round;
         }
-        else {
-            gameBoardModule.updateGameboard(index, playerO.getSign())
+    }
+
+    const isGameOver = () => {
+        if(round >= 9) {
+            displayControllerModule.setMessage("It's a draw");
+            return true;
         }
-        ++round;
+        else if(gameBoardModule.checkWinner()) {
+            displayControllerModule.setMessage(`Player ${gameBoardModule.getCurrentSign()} is the winner!`);
+            return true;
+        }
+
+        return false;
     }
 
     const resetRounds = () => {
