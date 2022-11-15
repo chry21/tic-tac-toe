@@ -8,12 +8,13 @@ const Player = (sign) => {
     }
 }
 
-//displayControllerModule contains all the functions and variables relative to all the elements with a function incorporate(click the field, restart button, turn message...)
+//displayControllerModule contains all the functions and variables related to all the elements with a function incorporate(click the field, restart button, turn message...)
 
 const displayControllerModule = (() => {
 
     const fields = document.querySelectorAll(".not-active");
     const message= document.getElementById("message");
+    const restartBtn = document.getElementById("restartBtn");
 
     fields.forEach(field =>
         field.addEventListener("click", (e) => {
@@ -23,8 +24,8 @@ const displayControllerModule = (() => {
                 gameBoardModule.drawSign(e.target);
             }
         })
-    )   
-
+    )  
+    
     const checkIfActive = (target) => {
         return target.classList.contains("active")
     }
@@ -39,7 +40,7 @@ const displayControllerModule = (() => {
     }
 
     const resetTurnMessage = () => {
-        message.textContent = "Player X' s turn";
+        message.textContent = "Player X's turn";
     }
 
     const resetFieldsClasses = () => {
@@ -49,60 +50,47 @@ const displayControllerModule = (() => {
         })
     }
 
-    const restartBtn = document.getElementById("restartBtn");
     restartBtn.addEventListener("click", () => {
+       restartAll();
+    })
+
+    const restartAll = () => {
         resetTurnMessage();
         resetFieldsClasses();
         gameBoardModule.resetGameBoard();
         gameControllerModule.resetRounds()
-    })
-
+    }
+  
     return {
         setMessage,
     }
 })();
 
-//gameBoardModule contains all the functions and variables related to the gameboard interface
+//gameBoardModule contains all the functions and variables related to the gameboard
 
 const gameBoardModule = (() => {
-    let _gameBoard = ["", "", "", "", "", "", "", "", ""];
+    let gameBoard = ["", "", "", "", "", "", "", "", ""];
     let _currentSign = "X";
 
-    const updateGameboard = (index, sign) => {
-        _gameBoard[index] = sign;
-        modifyCurrentSign(sign)
-    }
-
-    const modifyCurrentSign = (sign) => {
-       _currentSign = sign;
-    }
-
-    const getCurrentSign = () => {
-        return _currentSign
+    const updateGameboard = (fieldIndex, sign) => {
+        gameBoard[fieldIndex] = sign;
+        _currentSign = sign;
+        console.log(gameBoard)
     }
     
     const drawSign = (field)  => {
         field.innerHTML = _currentSign;
     }
 
-    const checkWinner = () => {
-        if(_gameBoard[0] === "X" && _gameBoard[1] === "X" && _gameBoard[2] === "X") {
-            return true;
-        }
-        return false;
-    }
-
     const resetGameBoard = () => {
-        _gameBoard = ["", "", "", "", "", "", "", "", ""];
-
+        gameBoard = ["", "", "", "", "", "", "", "", ""];
         _currentSign = "X";
     }
 
     return {
+        gameBoard,
         updateGameboard,
-        getCurrentSign,
         drawSign,
-        checkWinner,
         resetGameBoard,
     }
 })()
@@ -112,33 +100,32 @@ const gameBoardModule = (() => {
 const gameControllerModule = (() => {
     const playerX = Player("X");
     const playerO = Player("O");
-
     let round = 1;
 
-    const playRound = (index) => {
-        if(!isGameOver()) {
-            if(round % 2 !== 0) {
-                gameBoardModule.updateGameboard(index, playerX.getSign())
-                displayControllerModule.setMessage("Player O' s turn");  
-            }
-            else {
-                gameBoardModule.updateGameboard(index, playerO.getSign())
-                displayControllerModule.setMessage("Player X' s turn");
-            }
-            ++round;
+    const playRound = (fieldIndex) => {
+        gameBoardModule.updateGameboard(fieldIndex, getCurrentSign());
+
+        if(checkWinner()) {
+            displayControllerModule.setMessage(`Player ${getCurrentSign()} is the winner!`)
         }
+        else if(round === 9) {
+            displayControllerModule.setMessage("It's a draw!");
+        }
+        else {
+            displayControllerModule.setMessage(`Player ${getCurrentSign()}'s turn`)
+            round++;
+        }
+        
     }
 
-    const isGameOver = () => {
-        if(round >= 9) {
-            displayControllerModule.setMessage("It's a draw");
-            return true;
-        }
-        else if(gameBoardModule.checkWinner()) {
-            displayControllerModule.setMessage(`Player ${gameBoardModule.getCurrentSign()} is the winner!`);
-            return true;
-        }
+    const getCurrentSign = () => {
+        return (round % 2 !== 0) ? playerX.getSign() : playerO.getSign();
+    }
 
+    const checkWinner = () => {
+        if(gameBoardModule.gameBoard [0] === "X" && gameBoardModule.gameBoard [1] === "X" && gameBoardModule.gameBoard [2] === "X") {
+            return true;
+        }
         return false;
     }
 
@@ -148,7 +135,9 @@ const gameControllerModule = (() => {
 
     return {
         playRound,
+        getCurrentSign,
         resetRounds,
+        
     }
 })()
 
