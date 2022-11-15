@@ -16,6 +16,7 @@ const displayControllerModule = (() => {
     const message= document.getElementById("message");
     const restartBtn = document.getElementById("restartBtn");
 
+
     fields.forEach(field =>
         field.addEventListener("click", (e) => {
             if(!checkIfActive(e.target)) {
@@ -77,6 +78,10 @@ const gameBoardModule = (() => {
         _currentSign = sign;
         console.log(gameBoard)
     }
+
+    const getUpdatedGameBoard = () => {
+        return gameBoard;
+    }
     
     const drawSign = (field)  => {
         field.innerHTML = _currentSign;
@@ -90,6 +95,7 @@ const gameBoardModule = (() => {
     return {
         gameBoard,
         updateGameboard,
+        getUpdatedGameBoard,
         drawSign,
         resetGameBoard,
     }
@@ -114,8 +120,7 @@ const gameControllerModule = (() => {
         else {
             displayControllerModule.setMessage(`Player ${getCurrentSign()}'s turn`)
             round++;
-        }
-        
+        }     
     }
 
     const getCurrentSign = () => {
@@ -123,7 +128,8 @@ const gameControllerModule = (() => {
     }
 
     const checkWinner = () => {
-        if(gameBoardModule.gameBoard [0] === "X" && gameBoardModule.gameBoard [1] === "X" && gameBoardModule.gameBoard [2] === "X") {
+        let gameBoard = gameBoardModule.getUpdatedGameBoard();
+        if(gameBoard [0] === "X" && gameBoard [1] === "X" && gameBoard [2] === "X") {
             return true;
         }
         return false;
