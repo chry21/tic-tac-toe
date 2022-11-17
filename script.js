@@ -8,10 +8,8 @@ const Player = (sign) => {
     }
 }
 
-//displayControllerModule contains all the functions and variables related to all the elements with a function incorporate(click the field, restart button, turn message...)
 
 const displayControllerModule = (() => {
-
     const fields = document.querySelectorAll(".not-active");
     const message= document.getElementById("message");
     const restartBtn = document.getElementById("restartBtn");
@@ -40,6 +38,12 @@ const displayControllerModule = (() => {
         message.textContent = text;
     }
 
+    const makeFieldsUnclickable = () => {
+        fields.forEach(field => {
+            field.classList.add("active");
+        })
+    }
+
     const resetTurnMessage = () => {
         message.textContent = "Player X's turn";
     }
@@ -64,10 +68,10 @@ const displayControllerModule = (() => {
   
     return {
         setMessage,
+        makeFieldsUnclickable,
     }
 })();
 
-//gameBoardModule contains all the functions and variables related to the gameboard
 
 const gameBoardModule = (() => {
     let gameBoard = ["", "", "", "", "", "", "", "", ""];
@@ -76,7 +80,6 @@ const gameBoardModule = (() => {
     const updateGameboard = (fieldIndex, sign) => {
         gameBoard[fieldIndex] = sign;
         _currentSign = sign;
-        console.log(gameBoard)
     }
 
     const getUpdatedGameBoard = () => {
@@ -101,49 +104,69 @@ const gameBoardModule = (() => {
     }
 })()
 
-//gameControllerModule contains all the logic
 
 const gameControllerModule = (() => {
     const playerX = Player("X");
     const playerO = Player("O");
-    let round = 1;
+    let _round = 1;
+    let _gameOver = false;
+
+    let gameBoard;    //I created these variables inside this module because if I import them from gameBoardModule their 
+    let currentSign;  //value doesn't update after the reset 
+    
 
     const playRound = (fieldIndex) => {
         gameBoardModule.updateGameboard(fieldIndex, getCurrentSign());
 
         if(checkWinner()) {
             displayControllerModule.setMessage(`Player ${getCurrentSign()} is the winner!`)
+            displayControllerModule.makeFieldsUnclickable();
         }
-        else if(round === 9) {
+        else if(_round === 9) {
             displayControllerModule.setMessage("It's a draw!");
         }
         else {
             displayControllerModule.setMessage(`Player ${getCurrentSign()}'s turn`)
-            round++;
+            _round++;
         }     
     }
 
     const getCurrentSign = () => {
-        return (round % 2 !== 0) ? playerX.getSign() : playerO.getSign();
+        return (_round % 2 !== 0) ? playerX.getSign() : playerO.getSign();
     }
 
+    const winConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+
     const checkWinner = () => {
-        let gameBoard = gameBoardModule.getUpdatedGameBoard();
-        if(gameBoard [0] === "X" && gameBoard [1] === "X" && gameBoard [2] === "X") {
-            return true;
-        }
-        return false;
+        gameBoard = gameBoardModule.getUpdatedGameBoard();  
+        currentSign = getCurrentSign();
+        
+        winConditions.forEach((item) => {
+            if(gameBoard[item[0]] === currentSign && gameBoard[item[1]] === currentSign && gameBoard[item[2]] === currentSign) {
+                _gameOver = true;
+            }
+        })
+        return _gameOver;
     }
 
     const resetRounds = () => {
-        round = 1;
+        _round = 1;
+        _gameOver = false;
     }
 
     return {
         playRound,
         getCurrentSign,
         resetRounds,
-        
     }
 })()
 
