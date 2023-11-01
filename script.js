@@ -126,8 +126,8 @@ const gameControllerModule = (() => {
             displayControllerModule.setMessage("It's a draw!");
         }
         else {
-            displayControllerModule.setMessage(`Player ${getCurrentSign()}'s turn`)
             _round++;
+            displayControllerModule.setMessage(`Player ${getCurrentSign()}'s turn`)     
         }     
     }
 
